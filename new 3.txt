@@ -1,0 +1,39 @@
+
+###### on/off valido #############
+
+
+import paho.mqtt.client as mqtt
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7,GPIO.IN)
+GPIO.setup(35,GPIO.OUT)
+
+estado = None
+def on_message(client, obj, msg):    
+	estado = (msg.payload.decode("utf-8"))
+	print(estado)
+	if estado == "ON":
+		GPIO.setmode(GPIO.BOARD)
+		GPIO.setup(35, GPIO.OUT)
+		GPIO.output(35, True) 
+		mqttc.publish("amonteros.fie@unach.edu.ec/prueba","1")
+		
+	else:
+		GPIO.setmode(GPIO.BOARD)
+		GPIO.setup(35, GPIO.OUT)
+		GPIO.output(35, False)
+		mqttc.publish("amonteros.fie@unach.edu.ec/prueba","0")		
+ 
+ 
+mqttc = mqtt.Client() 
+mqttc.on_message = on_message 
+mqttc.username_pw_set("amonteros.fie@unach.edu.ec","ajjazmin1997") 
+mqttc.connect("maqiatto.com", 1883) 
+mqttc.subscribe("amonteros.fie@unach.edu.ec/prueba1", 0)
+rc=0
+print("inicio...")
+while rc == 0:
+	time.sleep(2)
+	rc = mqttc.loop() 
+

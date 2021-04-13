@@ -1,0 +1,51 @@
+import paho.mqtt.client as mqtt
+import RPi.GPIO as GPIO
+import time
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7,GPIO.IN)
+GPIO.setup(35,GPIO.OUT)
+
+############### ON OFF #############################
+global estado
+def on_messageA(client, obj, msg):    
+	estado = (msg.payload.decode("utf-8"))
+	print(estado)
+	if estado == "ON":
+		f=open("texto1.txt","a+")
+		f.write("on\n")
+		f.close()
+		mqttcA.publish("amonteros.fie@unach.edu.ec/prueba1","ON")
+		GPIO.setmode(GPIO.BOARD)
+		GPIO.setup(35, GPIO.OUT)
+		GPIO.output(35, True)
+		
+		
+	elif estado=="OFF":
+		f=open("texto1.txt","a+")
+		f.write("off\n")
+		f.close()
+		mqttcA.publish("amonteros.fie@unach.edu.ec/prueba1","OFF")
+		GPIO.setmode(GPIO.BOARD)
+		GPIO.setup(35, GPIO.OUT)
+		GPIO.output(35, False)
+		
+	elif estado == "HISTORIAL":
+		f=open("texto1.txt","r")
+		datos=f.read()
+		f.close()
+		mqttcA.publish("amonteros.fie@unach.edu.ec/prueba1",datos)	
+ 
+ ################ CLIENTE A ########################
+ 
+mqttcA = mqtt.Client() 
+mqttcA.on_message = on_messageA
+mqttcA.username_pw_set("amonteros.fie@unach.edu.ec","ajjazmin1997") 
+mqttcA.connect("maqiatto.com", 1883) 
+mqttcA.subscribe("amonteros.fie@unach.edu.ec/prueba", 0)
+
+rc=0
+print("inicio...")
+while rc == 0:
+      time.sleep(2)
+      rc = mqttcA.loop()
+
